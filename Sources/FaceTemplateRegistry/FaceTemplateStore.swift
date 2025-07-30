@@ -33,16 +33,4 @@ actor FaceTemplateStore<V: FaceTemplateVersion, D: FaceTemplateData> {
             .filter { $0.identifier == identifier }
             .map { $0.faceTemplate }
     }
-    
-    func deleteByIdentifier(_ identifier: String) -> [FaceTemplate<V, D>] {
-        let index = self.faceTemplates.partition { $0.identifier == identifier }
-        let deleted = Array(self.faceTemplates[index...])
-        self.faceTemplates.removeSubrange(index...)
-        return deleted.map { $0.faceTemplate }
-    }
-    
-    func delete(_ templates: [TaggedFaceTemplate<V, D>]) {
-        let deleteSet = Set(templates)
-        self.faceTemplates.removeAll { deleteSet.contains($0) }
-    }
 }

@@ -225,26 +225,6 @@ public class FaceTemplateMultiRegistry {
         }
     }
     
-    /// Delete face templates
-    /// - Parameter faceTemplates: Face templates to delete
-    public func deleteFaceTemplates(_ faceTemplates: [AnyTaggedFaceTemplate]) async {
-        for registry in registries {
-            await registry.deleteTemplates(faceTemplates)
-        }
-    }
-    
-    /// Delete face templates tagged by the given identifier
-    /// - Parameter identifier: Identifier
-    /// - Returns: Array of deleted face templates
-    public func deleteFaceTemplatesByIdentifier(_ identifier: String) async -> [any FaceTemplateProtocol] {
-        var allDeleted: [any FaceTemplateProtocol] = []
-        for registry in registries {
-            let deleted = await registry.deleteFaceTemplatesByIdentifier(identifier)
-            allDeleted.append(contentsOf: deleted)
-        }
-        return allDeleted
-    }
-    
     private func autoEnrolFace(_ face: Face, image: Image, identifier: String) async throws -> [any FaceTemplateProtocol] {
         let addedTemplates = try await withThrowingTaskGroup(of: (any FaceTemplateProtocol)?.self) { group in
             for registry in registries {
