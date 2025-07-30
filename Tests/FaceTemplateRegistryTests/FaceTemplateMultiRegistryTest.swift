@@ -275,35 +275,6 @@ final class FaceTemplateMultiRegistryTest: XCTestCase {
         XCTAssertEqual(results.autoEnrolledFaceTemplates.count, 0)
     }
     
-    // MARK: - Deletion
-    
-    func test_deleteFaceTemplates() async throws {
-        let reg1 = Mocks.createRegistry(for: V1.self, userCount: 5, templatesPerUserCount: 2)
-            .eraseToAnyFaceTemplateRegistry()
-        let reg2 = Mocks.createRegistry(for: V2.self, userCount: 5, templatesPerUserCount: 2)
-            .eraseToAnyFaceTemplateRegistry()
-        let multiRegistry = try await FaceTemplateMultiRegistry(registries: reg1, reg2)
-        let allTemplates = await multiRegistry.faceTemplates
-        let numberOfTemplatesToDelete = 10
-        await multiRegistry.deleteFaceTemplates(allTemplates.suffix(numberOfTemplatesToDelete))
-        let afterDeletion = await multiRegistry.faceTemplates
-        XCTAssertEqual(afterDeletion.count, allTemplates.count - numberOfTemplatesToDelete)
-    }
-    
-    func test_deleteByIdentifier() async throws {
-        let reg1 = Mocks.createRegistry(for: V1.self, userCount: 5, templatesPerUserCount: 2)
-            .eraseToAnyFaceTemplateRegistry()
-        let reg2 = Mocks.createRegistry(for: V2.self, userCount: 5, templatesPerUserCount: 2)
-            .eraseToAnyFaceTemplateRegistry()
-        let multiRegistry = try await FaceTemplateMultiRegistry(registries: reg1, reg2)
-        let identifiers = await multiRegistry.identifiers
-        XCTAssertTrue(identifiers.contains("User 2"))
-        let deleted = await multiRegistry.deleteFaceTemplatesByIdentifier("User 2")
-        XCTAssertEqual(deleted.count, 4)
-        let afterDeletion = await multiRegistry.identifiers
-        XCTAssertFalse(afterDeletion.contains("User 2"))
-    }
-    
     // MARK: - Retrieval
     
     func test_getFaceTemplatesByIdentifier() async throws {
@@ -314,6 +285,16 @@ final class FaceTemplateMultiRegistryTest: XCTestCase {
         let multiRegistry = try await FaceTemplateMultiRegistry(registries: reg1, reg2)
         let templates = await multiRegistry.faceTemplatesByIdentifier("User 1")
         XCTAssertEqual(templates.count, 4)
+    }
+    
+    func test_getIdentifiers() async throws {
+        let reg1 = Mocks.createRegistry(for: V1.self, userCount: 5, templatesPerUserCount: 2)
+            .eraseToAnyFaceTemplateRegistry()
+        let reg2 = Mocks.createRegistry(for: V2.self, userCount: 5, templatesPerUserCount: 2)
+            .eraseToAnyFaceTemplateRegistry()
+        let multiRegistry = try await FaceTemplateMultiRegistry(registries: reg1, reg2)
+        let identifiers = await multiRegistry.identifiers
+        XCTAssertEqual(identifiers.count, 5)
     }
 }
 

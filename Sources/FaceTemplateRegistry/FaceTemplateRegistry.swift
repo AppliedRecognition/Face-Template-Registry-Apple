@@ -120,19 +120,6 @@ public class FaceTemplateRegistry<V: FaceTemplateVersion, D: FaceTemplateData, F
         return await self.faceTemplateStore.getByIdentifier(identifier)
     }
     
-    /// Delete all face templates tagged by the identifier
-    /// - Parameter identifier: Identifier
-    /// - Returns: Array of deleted face templates
-    public func deleteFaceTemplatesByIdentifier(_ identifier: String) async -> [FaceTemplate<V, D>] {
-        return await self.faceTemplateStore.deleteByIdentifier(identifier)
-    }
-    
-    /// Delete face templates
-    /// - Parameter faceTemplates: Face templates to delete
-    public func deleteFaceTemplates(_ faceTemplates: [TaggedFaceTemplate<V, D>]) async {
-        await self.faceTemplateStore.delete(faceTemplates)
-    }
-    
     /// Create a type-erased version of this registry
     /// - Returns: Type-erased version of this registry
     public func eraseToAnyFaceTemplateRegistry() -> AnyFaceTemplateRegistry {

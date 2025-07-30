@@ -17,8 +17,6 @@ public class AnyFaceTemplateRegistry {
     private let _identifyFace: (Face, Image) async throws -> [AnyIdentificationResult]
     private let _authenticateFace: (Face, Image, String) async throws -> AnyAuthenticationResult
     private let _faceTemplatesByIdentifier: (String) async -> [any FaceTemplateProtocol]
-    private let _deleteFaceTemplatesByIdentifier: (String) async -> [any FaceTemplateProtocol]
-    private let _deleteTemplates: ([AnyTaggedFaceTemplate]) async -> Void
     
     /// Face template version handled by this registry
     public let faceTemplateVersion: Int
@@ -64,23 +62,6 @@ public class AnyFaceTemplateRegistry {
         self._faceTemplatesByIdentifier = { identifier in
             await registry.faceTemplatesByIdentifier(identifier)
         }
-        
-        self._deleteFaceTemplatesByIdentifier = { identifier in
-            await registry.deleteFaceTemplatesByIdentifier(identifier)
-        }
-        
-        self._deleteTemplates = { templates in
-            let casted: [TaggedFaceTemplate<V, D>] = templates.compactMap {
-                if $0.faceTemplate.version != registry.faceRecognition.version {
-                    return nil
-                }
-                return TaggedFaceTemplate<V, D>(
-                    faceTemplate: $0.faceTemplate as! FaceTemplate<V, D>,
-                    identifier: $0.identifier
-                )
-            }
-            await registry.deleteFaceTemplates(casted)
-        }
     }
     
     var faceTemplates: [AnyTaggedFaceTemplate] {
@@ -108,13 +89,5 @@ public class AnyFaceTemplateRegistry {
     
     func faceTemplatesByIdentifier(_ identifier: String) async -> [any FaceTemplateProtocol] {
         await _faceTemplatesByIdentifier(identifier)
-    }
-    
-    func deleteFaceTemplatesByIdentifier(_ identifier: String) async -> [any FaceTemplateProtocol] {
-        await _deleteFaceTemplatesByIdentifier(identifier)
-    }
-    
-    func deleteTemplates(_ templates: [AnyTaggedFaceTemplate]) async {
-        await _deleteTemplates(templates)
     }
 }

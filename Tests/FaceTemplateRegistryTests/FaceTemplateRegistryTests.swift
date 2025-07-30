@@ -140,41 +140,4 @@ final class FaceTemplateRegistryTests: XCTestCase {
         let authResult = try await registry.authenticateFace(face, image: Mocks.image, identifier: "User 50")
         XCTAssertFalse(authResult.authenticated)
     }
-    
-    // MARK: - Face template deletion
-    
-    func test_deleteFaceTemplates() async throws {
-        let rec = MockFaceRecognition<V1>()
-        let templates = (0..<10).map { i in
-            return TaggedFaceTemplate(
-                faceTemplate: FaceTemplate<V1, Float>(data: Float(i)),
-                identifier: "User \(i)"
-            )
-        }
-        let registry = FaceTemplateRegistry(faceRecognition: rec, faceTemplates: templates)
-        let toDelete = TaggedFaceTemplate(
-            faceTemplate: FaceTemplate<V1, Float>(data: 5),
-            identifier: "User 5"
-        )
-        var registeredTemplates = await registry.faceTemplates
-        XCTAssertEqual(registeredTemplates.count, 10)
-        await registry.deleteFaceTemplates([toDelete])
-        registeredTemplates = await registry.faceTemplates
-        XCTAssertEqual(registeredTemplates.count, 9)
-    }
-    
-    func test_deleteFaceTemplatesByIdentifier() async throws {
-        let rec = MockFaceRecognition<V1>()
-        let templates = (0..<10).map { i in
-            return TaggedFaceTemplate(
-                faceTemplate: FaceTemplate<V1, Float>(data: Float(i)),
-                identifier: "User \(i)"
-            )
-        }
-        let registry = FaceTemplateRegistry(faceRecognition: rec, faceTemplates: templates)
-        let deleted = await registry.deleteFaceTemplatesByIdentifier("User 5")
-        XCTAssertEqual(deleted.count, 1)
-        let registeredTemplates = await registry.faceTemplates
-        XCTAssertEqual(registeredTemplates.count, templates.count - 1)
-    }
 }
