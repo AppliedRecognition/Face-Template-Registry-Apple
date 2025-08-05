@@ -13,18 +13,20 @@ public class AnyFaceTemplateRegistry {
     
     private let _faceTemplates: () async -> [AnyTaggedFaceTemplate]
     private let _identifiers: () async -> Set<String>
-    private let _registerFace: (Face, Image, String, Bool) async throws -> any FaceTemplateProtocol
+    private let _registerFace: (Face, Image, String) async throws -> any FaceTemplateProtocol
     private let _identifyFace: (Face, Image) async throws -> [AnyIdentificationResult]
     private let _authenticateFace: (Face, Image, String) async throws -> AnyAuthenticationResult
     private let _faceTemplatesByIdentifier: (String) async -> [any FaceTemplateProtocol]
     
     /// Face template version handled by this registry
     public let faceTemplateVersion: Int
+    public let configuration: FaceTemplateRegistryConfiguration
     
     init<V: FaceTemplateVersion, D: FaceTemplateData, R: FaceRecognition>(
         _ registry: FaceTemplateRegistry<V, D, R>
     ) where R.Version == V, R.TemplateData == D {
         self.faceTemplateVersion = registry.faceRecognition.version
+        self.configuration = registry.configuration
         self._faceTemplates = {
             await registry.faceTemplates.map {
                 AnyTaggedFaceTemplate(
@@ -38,8 +40,8 @@ public class AnyFaceTemplateRegistry {
             await registry.identifiers
         }
         
-        self._registerFace = { face, image, identifier, forceEnrolment in
-            try await registry.registerFace(face, image: image, identifier: identifier, forceEnrolment: forceEnrolment)
+        self._registerFace = { face, image, identifier in
+            try await registry.registerFace(face, image: image, identifier: identifier)
         }
         
         self._identifyFace = { face, image in
@@ -75,8 +77,8 @@ public class AnyFaceTemplateRegistry {
             await _identifiers()
         }
     }
-    func registerFace(_ face: Face, image: Image, identifier: String, forceEnrolment: Bool = false) async throws -> any FaceTemplateProtocol {
-        try await _registerFace(face, image, identifier, forceEnrolment)
+    func registerFace(_ face: Face, image: Image, identifier: String) async throws -> any FaceTemplateProtocol {
+        try await _registerFace(face, image, identifier)
     }
     
     func identifyFace(_ face: Face, image: Image) async throws -> [AnyIdentificationResult] {

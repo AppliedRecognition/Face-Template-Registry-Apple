@@ -41,20 +41,17 @@ public class FaceTemplateRegistry<V: FaceTemplateVersion, D: FaceTemplateData, F
     ///   - face: Face to register
     ///   - image: Image in which the face was detected
     ///   - identifier: Identifier used to tag the face template
-    ///   - forceEnrolment: Set to `true` to  force enrolment even if another identifier with a similar face is already registered
     /// - Returns: Registered face template
-    public func registerFace(_ face: Face, image: Image, identifier: String, forceEnrolment: Bool=false) async throws -> FaceTemplate<V, D> {
+    public func registerFace(_ face: Face, image: Image, identifier: String) async throws -> FaceTemplate<V, D> {
         let template = try await self.faceRecognition.createFaceRecognitionTemplates(from: [face], in: image).first!
         let taggedTemplate = TaggedFaceTemplate(faceTemplate: template, identifier: identifier)
-        if !forceEnrolment {
-            let allTemplates = await self.faceTemplates
-            if !allTemplates.isEmpty {
-                let scores = try await self.faceRecognition.compareFaceRecognitionTemplates(allTemplates.map { $0.faceTemplate }, to: template)
-                if let existingUser = zip(scores, allTemplates).first(where: { (score, template) in
-                    return score >= self.configuration.authenticationThreshold && template.identifier != identifier
-                })?.1.identifier {
-                    throw FaceTemplateRegistryError.similarFaceAlreadyRegisteredAs(existingUser)
-                }
+        let allTemplates = await self.faceTemplates
+        if !allTemplates.isEmpty {
+            let scores = try await self.faceRecognition.compareFaceRecognitionTemplates(allTemplates.map { $0.faceTemplate }, to: template)
+            if let existingUser = zip(scores, allTemplates).first(where: { (score, template) in
+                return score >= self.configuration.identificationThreshold && template.identifier != identifier
+            }) {
+                throw FaceTemplateRegistryError.similarFaceAlreadyRegisteredAs(existingUser.1.identifier, template, existingUser.0)
             }
         }
         await self.faceTemplateStore.append(taggedTemplate)

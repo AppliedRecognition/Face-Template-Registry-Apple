@@ -82,13 +82,12 @@ public class FaceTemplateMultiRegistry {
     ///   - face: Face to register
     ///   - image: Image in which the face was detected
     ///   - identifier: Identifier to tag the registered face with
-    ///   - forceEnrolment: Set to `true` to  force enrolment even if another identifier with a similar face is already registered
     /// - Returns: Registered face templates
-    public func registerFace(_ face: Face, image: Image, identifier: String, forceEnrolment: Bool=false) async throws -> [any FaceTemplateProtocol] {
+    public func registerFace(_ face: Face, image: Image, identifier: String) async throws -> [any FaceTemplateProtocol] {
         let registeredTemplates = try await withThrowingTaskGroup(of: (any FaceTemplateProtocol).self) { group in
             for registry in registries {
                 group.addTask {
-                    try await registry.registerFace(face, image: image, identifier: identifier, forceEnrolment: forceEnrolment)
+                    try await registry.registerFace(face, image: image, identifier: identifier)
                 }
             }
             var combined: [any FaceTemplateProtocol] = []

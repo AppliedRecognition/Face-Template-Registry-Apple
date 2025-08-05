@@ -30,28 +30,13 @@ final class FaceTemplateRegistryTests: XCTestCase {
         do {
             _ = try await registry.registerFace(face, image: Mocks.image, identifier: "New user")
             XCTFail()
-        } catch FaceTemplateRegistryError.similarFaceAlreadyRegisteredAs(let user) {
+        } catch FaceTemplateRegistryError.similarFaceAlreadyRegisteredAs(let user, let template, let score) {
             XCTAssertEqual(user, "User 50")
+            XCTAssertGreaterThanOrEqual(score, registry.configuration.identificationThreshold)
+            XCTAssertNotNil(template)
         } catch {
             XCTFail()
         }
-    }
-    
-    func test_forceRegisterSimilarFacesAsDifferentIdentifier() async throws {
-        let rec = MockFaceRecognition<V1>()
-        let templates = stride(from: 0, to: 100, by: 10).map { i in
-            return TaggedFaceTemplate(
-                faceTemplate: FaceTemplate<V1, Float>(data: Float(i)),
-                identifier: "User \(i)"
-            )
-        }
-        let registry = FaceTemplateRegistry(faceRecognition: rec, faceTemplates: templates)
-        let face = Mocks.face(50.1)
-        let registeredTemplate = try await registry.registerFace(face, image: Mocks.image, identifier: "New user", forceEnrolment: true)
-        XCTAssertEqual(registeredTemplate.data, 50.1)
-        XCTAssertEqual(registeredTemplate.version, V1.id)
-        let newIds = await registry.identifiers
-        XCTAssertTrue(newIds.contains("New user"))
     }
     
     // MARK: - Identification
