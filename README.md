@@ -71,6 +71,8 @@ let multiRegistry = try await FaceTemplateMultiRegistry(
 
 Extract a face template from the given face and image and register it under a given identifier.
 
+In case there is a similar face already registered under a different identifier the function will throw [`FaceTemplateRegistryError.similarFaceAlreadyRegisteredAs(String, any FaceTemplateProtocol)`](./Sources/FaceTemplateRegistry/Errors.swift). The second parameter of the error is the extracted face template and the third is the score against which the template compared to the user. It's then up to you to decide whether you wish to add the face template to your data set.
+
 ```swift
 Task {
     // Face recognition instance
