@@ -39,6 +39,27 @@ final class FaceTemplateRegistryTests: XCTestCase {
         }
     }
     
+    func test_registerDifferentFaceAsSameIdentifier_fail() async throws {
+        let rec = MockFaceRecognition<V1>()
+        let templates = stride(from: 0, to: 100, by: 10).map { i in
+            return TaggedFaceTemplate(
+                faceTemplate: FaceTemplate<V1, Float>(data: Float(i)),
+                identifier: "User \(i)"
+            )
+        }
+        let registry = FaceTemplateRegistry(faceRecognition: rec, faceTemplates: templates)
+        let face = Mocks.face(110)
+        do {
+            _ = try await registry.registerFace(face, image: Mocks.image, identifier: "User 0")
+            XCTFail()
+        } catch FaceTemplateRegistryError.faceDoesNotMatchExisting(let template, let score) {
+            XCTAssertLessThanOrEqual(score, registry.configuration.authenticationThreshold)
+            XCTAssertNotNil(template)
+        } catch {
+            XCTFail()
+        }
+    }
+    
     // MARK: - Identification
     
     func test_identifyFaceInEmptySet_returnsEmptyResult() async throws {
