@@ -16,6 +16,11 @@ public enum FaceTemplateRegistryError: LocalizedError {
     case identifierNotRegistered(String)
     /// Thrown when multi-registry contains identifiers that cannot be compared with the same face recognition system
     case incompatibleFaceTemplates
+    /// Thrown when the face doesn't match the existing faces of the user who's being registered
+    ///
+    /// The first parameter of the error is the captured face template and the second parameter is the max score with which the
+    /// user's existing faces matched the captured face
+    case faceDoesNotMatchExisting(any FaceTemplateProtocol, Float)
     
     public var errorDescription: String? {
         switch self {
@@ -25,6 +30,8 @@ public enum FaceTemplateRegistryError: LocalizedError {
             return "Identifier \(identifier) is not registered"
         case .incompatibleFaceTemplates:
             return "Face templates are incompatible"
+        case .faceDoesNotMatchExisting(_, _):
+            return "Face does not match registered face templates(s)"
         }
     }
 }

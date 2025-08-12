@@ -53,6 +53,14 @@ public class FaceTemplateRegistry<V: FaceTemplateVersion, D: FaceTemplateData, F
             }) {
                 throw FaceTemplateRegistryError.similarFaceAlreadyRegisteredAs(existingUser.1.identifier, template, existingUser.0)
             }
+            if let maxScore: Float = zip(scores, allTemplates).compactMap({ score, face in
+                if face.identifier != identifier {
+                    return nil
+                }
+                return score
+            }).max(), maxScore < self.configuration.authenticationThreshold {
+                throw FaceTemplateRegistryError.faceDoesNotMatchExisting(template, maxScore)
+            }
         }
         await self.faceTemplateStore.append(taggedTemplate)
         return template
