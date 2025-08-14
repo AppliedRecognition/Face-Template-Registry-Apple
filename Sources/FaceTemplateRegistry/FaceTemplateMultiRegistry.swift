@@ -196,7 +196,7 @@ public class FaceTemplateMultiRegistry {
         }
         switch finalResult {
         case .success(let result):
-            if autoEnrol {
+            if autoEnrol && result.authenticated {
                 let newFaceTemplates = try await self.autoEnrolFace(face, image: image, identifier: identifier)
                 return AnyAuthenticationResult(authenticated: result.authenticated, challengeFaceTemplate: result.challengeFaceTemplate, matchedFaceTemplate: result.matchedFaceTemplate, score: result.score, autoEnrolledFaceTemplates: newFaceTemplates)
             }
