@@ -9,6 +9,7 @@ import Foundation
 import VerIDCommonTypes
 
 class MockFaceRecognition<V: FaceTemplateVersion>: FaceRecognition {
+    var defaultThreshold: Float = 0.5
     typealias Version = V
     typealias TemplateData = Float
     
