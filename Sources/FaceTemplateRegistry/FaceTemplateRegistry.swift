@@ -30,10 +30,14 @@ public class FaceTemplateRegistry<V: FaceTemplateVersion, D: FaceTemplateData, F
     ///   - faceRecognition:Face recognition instance to use for extracting face templates and face comparisons
     ///   - faceTemplates: Initial set of face templates
     ///   - configuration: Registry configuration
-    public init(faceRecognition: FaceRec, faceTemplates: Array<TaggedFaceTemplate<V, D>>, configuration: FaceTemplateRegistryConfiguration=FaceTemplateRegistryConfiguration()) {
+    public init(faceRecognition: FaceRec, faceTemplates: Array<TaggedFaceTemplate<V, D>>, configuration: FaceTemplateRegistryConfiguration?=nil) {
         self.faceRecognition = faceRecognition
         self.faceTemplateStore = FaceTemplateStore(initialTemplates: faceTemplates)
-        self.configuration = configuration
+        self.configuration = configuration ?? FaceTemplateRegistryConfiguration(
+            authenticationThreshold: faceRecognition.defaultThreshold,
+            identificationThreshold: faceRecognition.defaultThreshold,
+            autoEnrolmentThreshold: faceRecognition.defaultThreshold
+        )
     }
     
     /// Register face
