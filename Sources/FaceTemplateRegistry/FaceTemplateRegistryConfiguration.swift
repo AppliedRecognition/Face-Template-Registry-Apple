@@ -20,7 +20,7 @@ public struct FaceTemplateRegistryConfiguration {
     ///   - authenticationThreshold: Comparison threshold used at authentication
     ///   - identificationThreshold: Comparison threshold used at identification
     ///   - autoEnrolmentThreshold: Comparison threshold used to decide whether a face template should be automatically enrolled in other registries
-    public init(authenticationThreshold: Float = 0.5, identificationThreshold: Float = 0.5, autoEnrolmentThreshold: Float = 0.6) {
+    public init(authenticationThreshold: Float, identificationThreshold: Float, autoEnrolmentThreshold: Float) {
         self.authenticationThreshold = authenticationThreshold
         self.identificationThreshold = identificationThreshold
         self.autoEnrolmentThreshold = autoEnrolmentThreshold
